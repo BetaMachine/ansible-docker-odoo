@@ -1,0 +1,27 @@
+---
+- name: Create docker compose directory
+  file:
+    path: {{ odoo.app.path }}
+    stage: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Deploy docker-compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: {{ odoo.app.path}}/docker-compose.yml
+    owner: root
+    group: root
+
+- name: Start docker services
+  docker_service:
+    project_src: {{ odoo.app.path }}
+    project_name: odoo
+    restarted: yes
+
+- name: Assert service started
+  assert:
+    that:
+      - "odoo.odoo_odoo_1.state.running"
+      - "db.odoo_db_1.state.running"
