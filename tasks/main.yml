@@ -1,7 +1,31 @@
 ---
 - name: Create docker compose directory
   file:
-    path: {{ odoo.app.path }}
+    path: {{ odoo_app_path }}
+    stage: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Create docker volume directory
+  file:
+    path: {{ odoo_app_path }}/volume
+    stage: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Create docker config volume directory
+  file:
+    path: {{ odoo_app_path }}/volume/config
+    stage: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Create docker plugins volume directory
+  file:
+    path: {{ odoo_app_path }}/volume/plugins
     stage: directory
     mode: 0755
     owner: root
@@ -10,13 +34,20 @@
 - name: Deploy docker-compose file
   template:
     src: docker-compose.yml.j2
-    dest: {{ odoo.app.path}}/docker-compose.yml
+    dest: {{ odoo_app_path }}/docker-compose.yml
+    owner: root
+    group: root
+
+- name: Deploy odoo config file
+  template:
+    src: odoo.conf.j2
+    dest: {{ odoo_app_path }}/volume/config/odoo.conf
     owner: root
     group: root
 
 - name: Start docker services
   docker_service:
-    project_src: {{ odoo.app.path }}
+    project_src: {{ odoo_app_path }}
     project_name: odoo
     restarted: yes
 
